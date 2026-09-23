@@ -1,7 +1,11 @@
+import re
+
 import aiohttp
 from bs4 import BeautifulSoup
 
 from meineschule_digital.auth import AuthenticationError, get_verification_token
+from meineschule_digital.models import HomeInfo
+from meineschule_digital.parsers.hip import parse_hip
 
 
 BASE_URL = "https://meineschule.digital"
@@ -32,18 +36,16 @@ class MeineSchuleClient:
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # Nach einem fehlgeschlagenen Login erscheint das Loginformular erneut.
         if soup.select_one('input[name="Password"]'):
             raise AuthenticationError("Login fehlgeschlagen; Zugangsdaten prüfen")
 
-        # Eine erfolgreiche Seite enthält den Abmelde-Endpunkt.
         if soup.select_one('form[action="/account/logout"]') is None:
             raise AuthenticationError(
                 "Loginstatus unklar; erwarteten Abmelde-Link nicht gefunden"
             )
 
     async def get_home_info_html(self, path: str) -> str:
-        """Ruft einen bereits bekannten HIP-Pfad ab, z. B. /schule/hip/<id>."""
+        """Ruft einen bereits bekannten HIP-Pfad ab."""
         if not path.startswith("/") or path.startswith("//"):
             raise ValueError("Ein relativer Pfad beginnend mit / ist erforderlich")
 
@@ -55,3 +57,11 @@ class MeineSchuleClient:
             raise AuthenticationError("Session abgelaufen oder nicht angemeldet")
 
         return html
+
+    async def get_home_info(self, school_slug: str) -> HomeInfo:
+        """Liest Home.InfoPoint für die angegebene Schule."""
+        if not re.fullmatch(r"[a-z0-9-]+", school_slug):
+            raise ValueError("Ungültiger Schulpfad")
+
+        html = await self.get_home_info_html(f"/{school_slug}/hip")
+        return parse_hip(html)
