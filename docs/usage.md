@@ -9,10 +9,9 @@ Daten, auf die dieses Konto Zugriff hat. Sie benötigt Python 3.11 oder neuer.
 
 ## Installation
 
-Benötigt wird Python 3.11 oder neuer. Installiere Version `0.1.0` direkt
-von GitHub:
+Benötigt wird Python 3.11 oder neuer. Installiere Version `0.1.2` von PyPI:
 
-    pip install "git+https://github.com/rine77/meineschule-digital.git@v0.1.0"
+    pip install "meineschule-digital==0.1.2"
 
 Oder klone das Repository und installiere es lokal:
 

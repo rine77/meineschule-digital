@@ -25,10 +25,9 @@ entwickelt und verwendet diese Bibliothek als Abhängigkeit.
 
 ## Voraussetzungen und Installation
 
-Benötigt wird Python 3.11 oder neuer. Installiere die veröffentlichte
-Git-Version direkt von GitHub:
+Benötigt wird Python 3.11 oder neuer. Installiere die veröffentlichte Version von PyPI:
 
-    pip install "git+https://github.com/rine77/meineschule-digital.git@v0.1.0"
+    pip install "meineschule-digital==0.1.2"
 
 Alternativ kannst du das Repository klonen und lokal installieren:
 
