@@ -31,7 +31,7 @@ class Lesson:
     date: date
     subject: str
     homework: str
-
+    due_date: date | None = None  # Nur ausdrücklich genanntes "zum DD.MM.JJJJ"
 
 @dataclass
 class HomeInfo:

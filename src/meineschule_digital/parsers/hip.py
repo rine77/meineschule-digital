@@ -1,3 +1,5 @@
+import re
+
 from datetime import date, datetime
 
 from bs4 import BeautifulSoup, Tag
@@ -14,6 +16,19 @@ from meineschule_digital.models import (
 def _date(value: str) -> date:
     return datetime.strptime(value.strip(), "%d.%m.%Y").date()
 
+
+_DUE_DATE = re.compile(r"\bzum\s+(\d{1,2}\.\d{1,2}\.\d{4})\b", re.IGNORECASE)
+
+
+def _explicit_due_date(homework: str) -> date | None:
+    match = _DUE_DATE.search(homework)
+    if match is None:
+        return None
+
+    try:
+        return _date(match.group(1))
+    except ValueError:
+        return None
 
 def _cells(row: Tag) -> list[str]:
     return [
@@ -84,6 +99,7 @@ def parse_hip(html: str) -> HomeInfo:
                             date=_date(cells[0]),
                             subject=cells[1],
                             homework=cells[2],
+                            due_date=_explicit_due_date(cells[2]),
                         )
                     )
 

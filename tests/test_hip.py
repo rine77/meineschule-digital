@@ -66,3 +66,27 @@ def test_parse_absences_and_remarks_without_summary_rows():
     assert result.remarks[0].subject == "de - Deutsch"
     assert result.remarks[0].type == "Hinweis"
     assert result.remarks[0].author == "Muster, Lea"
+
+
+def test_homework_due_date_is_distinct_from_entry_date():
+    html = """
+    <div class="main withschoolmenu">
+      <h2>Beispiel, Alex</h2>
+      <h3>Unterricht</h3>
+      <table>
+        <tr><th>Datum</th><th>Fach</th><th>Hausaufgaben</th></tr>
+        <tr><td>22.09.2026</td><td>et</td>
+            <td>Mindmap zum 06.10.2026</td></tr>
+        <tr><td>16.09.2026</td><td>la</td>
+            <td>Vokabeln wiederholen</td></tr>
+      </table>
+    </div>
+    """
+    result = parse_hip(html)
+
+    assert result.lessons[0].date == date(2026, 9, 22)
+    assert result.lessons[0].due_date == date(2026, 10, 6)
+    assert result.lessons[0].homework == "Mindmap zum 06.10.2026"
+
+    assert result.lessons[1].date == date(2026, 9, 16)
+    assert result.lessons[1].due_date is None
