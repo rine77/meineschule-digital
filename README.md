@@ -70,3 +70,22 @@ returns homework entries with an assignment date, subject, text, due date and
 
 `from_date` filters by the day the homework was assigned. `until_date` is the
 last week searched for a lesson; it does not override explicit due dates.
+
+## Grades and remarks
+
+After logging in, the client can read the Home.InfoPoint data:
+
+    info = await client.get_home_info("salza-gymnasium")
+    grades = info.grades
+    remarks = info.remarks
+
+For individual access, use `get_grades(school_slug)` and
+`get_remarks(school_slug)`. Each individual call retrieves Home.InfoPoint
+again; use `get_home_info()` when both collections are needed together.
+
+A grade provides `subject`, `date`, `value`, `remark` and `information`.
+The `information` field contains the original text of the corresponding
+column. The client does not interpret it, assign weights or calculate grade
+averages from it.
+
+A student remark provides `date`, `text`, `subject`, `type` and `author`.

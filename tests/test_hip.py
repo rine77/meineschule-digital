@@ -90,3 +90,24 @@ def test_homework_due_date_is_distinct_from_entry_date():
 
     assert result.lessons[1].date == date(2026, 9, 16)
     assert result.lessons[1].due_date is None
+
+
+def test_grade_preserves_information_as_raw_text():
+    html = """
+    <div class="main withschoolmenu">
+      <h2>Beispiel, Alex</h2>
+      <h3>Noten</h3>
+      <h4>en - Englisch</h4>
+      <table>
+        <tr><th>Datum</th><th>Note</th><th>Bemerkung</th><th>Information</th></tr>
+        <tr><td>03.09.2026</td><td>3</td>
+            <td>Vokabeltest</td><td>Noten,keine Wertung</td></tr>
+      </table>
+    </div>
+    """
+    grade = parse_hip(html).grades[0]
+
+    assert grade.subject == "en - Englisch"
+    assert grade.value == "3"
+    assert grade.remark == "Vokabeltest"
+    assert grade.information == "Noten,keine Wertung"

@@ -208,3 +208,13 @@ class MeineSchuleClient:
             build_homework_item(item, schedule, covered_weeks)
             for item in homework
         ]
+
+    async def get_grades(self, school_slug: str):
+        """Liest alle auf Home.InfoPoint angezeigten Noten."""
+        info = await self.get_home_info(school_slug)
+        return info.grades
+
+    async def get_remarks(self, school_slug: str):
+        """Liest alle auf Home.InfoPoint angezeigten Bemerkungen."""
+        info = await self.get_home_info(school_slug)
+        return info.remarks
