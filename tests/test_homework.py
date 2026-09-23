@@ -44,3 +44,22 @@ def test_missing_plan_week_does_not_produce_a_guess():
         schedule,
         {date(2026, 9, 21), date(2026, 10, 5)},
     ) is None
+
+
+def test_homework_item_reports_due_date_source():
+    from meineschule_digital.homework import build_homework_item
+
+    explicit = Lesson(
+        date(2026, 9, 22), "et", "Mindmap zum 06.10.2026", date(2026, 10, 6)
+    )
+    inferred = Lesson(date(2026, 9, 22), "en", "Vokabeln")
+    schedule = [ScheduleLesson(date(2026, 9, 24), 3, "En", False)]
+    weeks = {date(2026, 9, 21)}
+
+    assert build_homework_item(explicit, [], set()).due_date_source == "explicit"
+
+    result = build_homework_item(inferred, schedule, weeks)
+    assert result.due_date == date(2026, 9, 24)
+    assert result.due_date_source == "schedule"
+
+    assert build_homework_item(inferred, [], weeks).due_date_source == "unknown"

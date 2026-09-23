@@ -161,3 +161,50 @@ class MeineSchuleClient:
             current += timedelta(days=7)
 
         return lessons, covered_weeks
+
+    async def get_homework(
+        self,
+        school_slug: str,
+        from_date,
+        until_date,
+        *,
+        excluded_subjects: set[str] | None = None,
+    ):
+        """Liest Hausaufgaben ab from_date und löst Termine bis until_date auf."""
+        from datetime import date
+
+        from meineschule_digital.homework import build_homework_item
+
+        if not isinstance(from_date, date) or not isinstance(until_date, date):
+            raise TypeError("from_date und until_date müssen datetime.date sein")
+        if until_date < from_date:
+            raise ValueError("until_date liegt vor from_date")
+
+        excluded = {
+            subject.casefold() for subject in (excluded_subjects or set())
+        }
+
+        info = await self.get_home_info(school_slug)
+        homework = [
+            item for item in info.lessons
+            if item.date >= from_date
+            and item.subject.casefold() not in excluded
+            and item.homework
+        ]
+
+        unresolved = [item for item in homework if item.due_date is None]
+        schedule = []
+        covered_weeks = set()
+
+        if unresolved:
+            schedule, covered_weeks = await self.get_schedule_weeks(
+                school_slug,
+                min(item.date for item in unresolved),
+                until_date,
+                excluded_subjects=excluded,
+            )
+
+        return [
+            build_homework_item(item, schedule, covered_weeks)
+            for item in homework
+        ]

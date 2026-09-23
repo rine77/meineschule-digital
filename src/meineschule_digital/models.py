@@ -48,3 +48,12 @@ class ScheduleLesson:
     period: int
     subject: str
     cancelled: bool
+
+
+@dataclass(frozen=True)
+class HomeworkItem:
+    assigned_date: date
+    subject: str
+    text: str
+    due_date: date | None
+    due_date_source: str  # "explicit", "schedule" oder "unknown"

@@ -45,3 +45,29 @@ def resolve_due_date(
             return candidate
 
     return None
+
+
+def build_homework_item(
+    lesson: Lesson,
+    schedule_lessons: Iterable[ScheduleLesson],
+    covered_weeks: Collection[date],
+):
+    """Erzeugt ein Ergebnis mit nachvollziehbarer Herkunft des Zieldatums."""
+    from meineschule_digital.models import HomeworkItem
+
+    due_date = resolve_due_date(lesson, schedule_lessons, covered_weeks)
+
+    if lesson.due_date is not None:
+        source = "explicit"
+    elif due_date is not None:
+        source = "schedule"
+    else:
+        source = "unknown"
+
+    return HomeworkItem(
+        assigned_date=lesson.date,
+        subject=lesson.subject,
+        text=lesson.homework,
+        due_date=due_date,
+        due_date_source=source,
+    )
