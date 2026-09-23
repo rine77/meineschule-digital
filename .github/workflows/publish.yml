@@ -1,0 +1,36 @@
+name: Auf PyPI veröffentlichen
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Paket und Werkzeuge installieren
+        run: python -m pip install -e ".[test]" build twine
+
+      - name: Tests ausführen
+        run: pytest -q
+
+      - name: Distributionen bauen
+        run: python -m build
+
+      - name: Paketmetadaten prüfen
+        run: python -m twine check --strict dist/*
+
+      - name: Auf PyPI veröffentlichen
+        uses: pypa/gh-action-pypi-publish@release/v1
