@@ -12,6 +12,21 @@ class Grade:
 
 
 @dataclass(frozen=True)
+class Absence:
+    date: date
+    remark: str
+
+
+@dataclass(frozen=True)
+class StudentRemark:
+    date: date
+    text: str
+    subject: str
+    type: str
+    author: str
+
+
+@dataclass(frozen=True)
 class Lesson:
     date: date
     subject: str
@@ -22,4 +37,6 @@ class Lesson:
 class HomeInfo:
     student: str
     grades: list[Grade] = field(default_factory=list)
+    absences: list[Absence] = field(default_factory=list)
+    remarks: list[StudentRemark] = field(default_factory=list)
     lessons: list[Lesson] = field(default_factory=list)
