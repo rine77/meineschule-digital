@@ -97,17 +97,67 @@ class MeineSchuleClient:
         student_id = str(selected["value"]).removeprefix("s:")
 
         async with self._session.get(
-            url,
-            params={
-                "handler": "Schedule",
-                "date": day.isoformat(),
-                "cog": "",
-                "t": "",
-                "s": student_id,
-                "view": "",
-            },
+                url,
+                params={
+                    "handler": "Schedule",
+                    "date": day.isoformat(),
+                    "cog": "",
+                    "t": "",
+                    "s": student_id,
+                    "view": "",
+                },
         ) as response:
             response.raise_for_status()
+
+            if response.url.path.casefold() == "/account/accessdenied":
+                raise PermissionError(
+                    f"Kein Zugriff auf die Planwoche mit Datum {day.isoformat()}"
+                )
+
+            if response.content_type != "application/json":
+                raise ValueError(
+                    f"Unerwartetes Antwortformat für Planwoche {day.isoformat()}: "
+                    f"{response.content_type}"
+                )
+
             data = await response.json()
 
         return parse_schedule(data, excluded_subjects=excluded_subjects)
+
+    async def get_schedule_weeks(
+        self,
+        school_slug: str,
+        first_day,
+        last_day,
+        *,
+        excluded_subjects: set[str] | None = None,
+    ):
+        """Lädt alle Planwochen zwischen first_day und last_day einschließlich."""
+        from datetime import date, timedelta
+
+        if not isinstance(first_day, date) or not isinstance(last_day, date):
+            raise TypeError("first_day und last_day müssen datetime.date sein")
+        if last_day < first_day:
+            raise ValueError("last_day liegt vor first_day")
+
+        current = first_day - timedelta(days=first_day.weekday())
+        final = last_day - timedelta(days=last_day.weekday())
+        weeks = (final - current).days // 7 + 1
+
+        if weeks > 12:
+            raise ValueError("Höchstens 12 Wochen pro Aufruf")
+
+        lessons = []
+        covered_weeks = set()
+
+        while current <= final:
+            week_lessons = await self.get_schedule(
+                school_slug,
+                current + timedelta(days=2),  # Mittwoch derselben Woche
+                excluded_subjects=excluded_subjects,
+            )
+            lessons.extend(week_lessons)
+            covered_weeks.add(current)
+            current += timedelta(days=7)
+
+        return lessons, covered_weeks
