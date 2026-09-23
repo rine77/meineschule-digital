@@ -40,3 +40,11 @@ class HomeInfo:
     absences: list[Absence] = field(default_factory=list)
     remarks: list[StudentRemark] = field(default_factory=list)
     lessons: list[Lesson] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ScheduleLesson:
+    date: date
+    period: int
+    subject: str
+    cancelled: bool

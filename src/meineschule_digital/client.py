@@ -65,3 +65,49 @@ class MeineSchuleClient:
 
         html = await self.get_home_info_html(f"/{school_slug}/hip")
         return parse_hip(html)
+
+    async def get_schedule(
+        self,
+        school_slug: str,
+        day,
+        *,
+        excluded_subjects: set[str] | None = None,
+    ):
+        """Liest die Stundenplan-Woche, in die day fällt."""
+        from datetime import date
+
+        from meineschule_digital.parsers.schedule import parse_schedule
+
+        if not re.fullmatch(r"[a-z0-9-]+", school_slug):
+            raise ValueError("Ungültiger Schulpfad")
+        if not isinstance(day, date):
+            raise TypeError("day muss ein datetime.date sein")
+
+        url = f"{BASE_URL}/{school_slug}/schedule"
+
+        async with self._session.get(url) as response:
+            response.raise_for_status()
+            page_html = await response.text()
+
+        soup = BeautifulSoup(page_html, "html.parser")
+        selected = soup.select_one('#Selection option[selected][value^="s:"]')
+        if selected is None:
+            raise ValueError("Ausgewählten Schüler im Stundenplan nicht gefunden")
+
+        student_id = str(selected["value"]).removeprefix("s:")
+
+        async with self._session.get(
+            url,
+            params={
+                "handler": "Schedule",
+                "date": day.isoformat(),
+                "cog": "",
+                "t": "",
+                "s": student_id,
+                "view": "",
+            },
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+
+        return parse_schedule(data, excluded_subjects=excluded_subjects)
