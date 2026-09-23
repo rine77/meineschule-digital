@@ -25,11 +25,15 @@ entwickelt und verwendet diese Bibliothek als Abhängigkeit.
 
 ## Voraussetzungen und Installation
 
-Benötigt wird Python 3.11 oder neuer.
+Benötigt wird Python 3.11 oder neuer. Installiere die veröffentlichte
+Git-Version direkt von GitHub:
 
-Klone dieses Repository über die Clone-URL deiner GitLab-Instanz. Im
-Projektverzeichnis installierst du anschließend das Paket:
+    pip install "git+https://github.com/rine77/meineschule-digital.git@v0.1.0"
 
+Alternativ kannst du das Repository klonen und lokal installieren:
+
+    git clone https://github.com/rine77/meineschule-digital.git
+    cd meineschule-digital
     python -m venv .venv
     source .venv/bin/activate
     pip install .

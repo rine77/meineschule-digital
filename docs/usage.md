@@ -9,12 +9,16 @@ Daten, auf die dieses Konto Zugriff hat. Sie benötigt Python 3.11 oder neuer.
 
 ## Installation
 
-Aus dem Git-Repository:
+Benötigt wird Python 3.11 oder neuer. Installiere Version `0.1.0` direkt
+von GitHub:
 
-    pip install "git+ssh://git@git.rine.de/rine/meineschule-digital.git@v0.1.0"
+    pip install "git+https://github.com/rine77/meineschule-digital.git@v0.1.0"
 
-Der genaue GitLab-Pfad kann je nach Namespace abweichen. Verwende im Zweifel
-die SSH-Clone-URL des Projekts und hänge `@v0.1.0` an.
+Oder klone das Repository und installiere es lokal:
+
+    git clone https://github.com/rine77/meineschule-digital.git
+    cd meineschule-digital
+    pip install .
 
 ## Zugangsdaten und Schulpfad
 
