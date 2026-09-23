@@ -3,7 +3,11 @@ import re
 import aiohttp
 from bs4 import BeautifulSoup
 
-from meineschule_digital.auth import AuthenticationError, get_verification_token
+from meineschule_digital.auth import (
+    AuthenticationError,
+    get_verification_token,
+    require_authenticated_page,
+)
 from meineschule_digital.models import HomeInfo
 from meineschule_digital.parsers.hip import parse_hip
 
@@ -53,8 +57,7 @@ class MeineSchuleClient:
             response.raise_for_status()
             html = await response.text()
 
-        if 'name="Password"' in html:
-            raise AuthenticationError("Session abgelaufen oder nicht angemeldet")
+        require_authenticated_page(html)
 
         return html
 
@@ -88,6 +91,7 @@ class MeineSchuleClient:
         async with self._session.get(url) as response:
             response.raise_for_status()
             page_html = await response.text()
+            require_authenticated_page(page_html)
 
         soup = BeautifulSoup(page_html, "html.parser")
         selected = soup.select_one('#Selection option[selected][value^="s:"]')

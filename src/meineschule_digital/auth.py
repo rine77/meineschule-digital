@@ -13,3 +13,10 @@ def get_verification_token(html: str) -> str:
         raise AuthenticationError("CSRF-Token auf der Loginseite nicht gefunden")
 
     return str(field["value"])
+
+
+def require_authenticated_page(html: str) -> None:
+    """Prüft, ob statt einer Datenseite das Loginformular geliefert wurde."""
+    soup = BeautifulSoup(html, "html.parser")
+    if soup.select_one('input[name="Password"]') is not None:
+        raise AuthenticationError("Session abgelaufen oder nicht angemeldet")
